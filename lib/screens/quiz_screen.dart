@@ -13,6 +13,16 @@ class _QuizScreenState extends State<QuizScreen> {
   final PageController _pageController = PageController();
   int currentQuestionIndex = 0;
   Map<String, String> selectedOptions = {};
+  bool optionSelected = false;
+  bool isCorrect = false;
+
+  void _selectOption(Question question, String optionId) {
+    setState(() {
+      selectedOptions[question.questionId] = optionId;
+      optionSelected = true;
+      isCorrect = question.correctOptionId == optionId;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,13 +39,29 @@ class _QuizScreenState extends State<QuizScreen> {
                 children: [
                   IconButton(
                     icon: const Icon(Icons.close),
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
                   ),
-                  SizedBox(
+                  Container(
                     width: size.width * .7,
-                    child: LinearProgressIndicator(
-                      value: (currentQuestionIndex + 1) /
-                          widget.questionsList.length,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.blueAccent),
+                      gradient: const LinearGradient(
+                        colors: [Colors.blueAccent, Colors.lightBlueAccent],
+                      ),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: LinearProgressIndicator(
+                        value: (currentQuestionIndex + 1) /
+                            widget.questionsList.length,
+                        backgroundColor: Colors.white.withOpacity(0.3),
+                        valueColor:
+                            const AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
                     ),
                   ),
                   Text(
@@ -72,18 +98,33 @@ class _QuizScreenState extends State<QuizScreen> {
                         const SizedBox(height: 18),
                         Column(
                           children: question.options.map((option) {
+                            bool isSelected =
+                                selectedOptions[question.questionId] ==
+                                    option.optionId;
+                            bool isCorrectOption =
+                                question.correctOptionId == option.optionId;
                             return GestureDetector(
-                              onTap: () {},
+                              onTap: () {
+                                _selectOption(question, option.optionId);
+                              },
                               child: Container(
                                 margin: const EdgeInsets.only(bottom: 12),
                                 width: size.width * .9,
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 18, vertical: 12),
                                 decoration: BoxDecoration(
-                                  color: Colors.blueAccent.withOpacity(.2),
+                                  color: isSelected
+                                      ? isCorrectOption
+                                          ? Colors.green.withOpacity(.5)
+                                          : Colors.red.withOpacity(.5)
+                                      : Colors.blueAccent.withOpacity(.2),
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
-                                    color: Colors.blueAccent.withOpacity(.4),
+                                    color: isSelected
+                                        ? isCorrectOption
+                                            ? Colors.green
+                                            : Colors.red
+                                        : Colors.blueAccent.withOpacity(.4),
                                     width: 2,
                                   ),
                                 ),
@@ -97,10 +138,15 @@ class _QuizScreenState extends State<QuizScreen> {
                                           fontSize: 18,
                                           fontWeight: FontWeight.w500),
                                     ),
-                                    if (selectedOptions[question.questionId] ==
-                                        option.optionId)
-                                      const Icon(Icons.check_circle,
-                                          color: Colors.blueAccent)
+                                    if (isSelected)
+                                      Icon(
+                                        isCorrectOption
+                                            ? Icons.check_circle
+                                            : Icons.cancel,
+                                        color: isCorrectOption
+                                            ? Colors.green
+                                            : Colors.red,
+                                      )
                                   ],
                                 ),
                               ),
@@ -112,30 +158,45 @@ class _QuizScreenState extends State<QuizScreen> {
                   },
                 ),
               ),
-              InkWell(
-                onTap: () {},
-                child: Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  width: size.width * .9,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: Colors.blueAccent.withOpacity(.7),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    currentQuestionIndex < widget.questionsList.length - 1
-                        ? "Next"
-                        : "Submit",
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white,
+              if (optionSelected)
+                InkWell(
+                  onTap: () {
+                    if (currentQuestionIndex <
+                        widget.questionsList.length - 1) {
+                      setState(() {
+                        currentQuestionIndex++;
+                        optionSelected = false;
+                      });
+                      _pageController.nextPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                    } else {
+                      // Handle the quiz submission here
+                    }
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    width: size.width * .9,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 18, vertical: 16),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: Colors.blueAccent.withOpacity(.7),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      currentQuestionIndex < widget.questionsList.length - 1
+                          ? "Next"
+                          : "Submit",
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
-              ),
             ],
           ),
         ),

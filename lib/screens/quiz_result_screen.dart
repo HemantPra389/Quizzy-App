@@ -114,7 +114,7 @@ class _QuizResultScreenState extends State<QuizResultScreen> {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(12),
                         child: LinearProgressIndicator(
-                          value: 5 / 15,
+                          value: widget.score / 10,
                           backgroundColor: Colors.white.withOpacity(0.3),
                           valueColor:
                               const AlwaysStoppedAnimation<Color>(Colors.white),

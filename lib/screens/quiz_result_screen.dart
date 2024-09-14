@@ -1,8 +1,10 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 
 class QuizResultScreen extends StatefulWidget {
-  const QuizResultScreen({super.key});
+  final int score;
+  const QuizResultScreen({super.key, required this.score});
 
   @override
   State<QuizResultScreen> createState() => _QuizResultScreenState();
@@ -12,13 +14,10 @@ class _QuizResultScreenState extends State<QuizResultScreen> {
   Container resultText(double topMargin, String title, double fontsize,
       FontWeight fontweight, Color color) {
     return Container(
-      margin: EdgeInsets.only(top: topMargin),
-      child: Text(
-        title,
-        style:
-            TextStyle(fontSize: fontsize, fontWeight: fontweight, color: color),
-      ),
-    );
+        margin: EdgeInsets.only(top: topMargin),
+        child: Text(title,
+            style: TextStyle(
+                fontSize: fontsize, fontWeight: fontweight, color: color)));
   }
 
   InkWell resultSelectionBtn(String title, Function myfun) {
@@ -27,23 +26,19 @@ class _QuizResultScreenState extends State<QuizResultScreen> {
         myfun();
       },
       child: DottedBorder(
-        color: Colors.black,
-        dashPattern: [8, 4],
-        strokeWidth: 2,
-        child: Container(
-            height: 50,
-            width: 170,
-            decoration: const BoxDecoration(color: Colors.blueAccent),
-            alignment: Alignment.center,
-            child: Text(
-              title,
-              style: TextStyle(
-                color: Colors.grey.shade800,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            )),
-      ),
+          color: Colors.black,
+          dashPattern: const [8, 4],
+          strokeWidth: 2,
+          child: Container(
+              height: 50,
+              width: 170,
+              decoration: const BoxDecoration(color: Colors.blueAccent),
+              alignment: Alignment.center,
+              child: Text(title,
+                  style: TextStyle(
+                      color: Colors.grey.shade800,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold)))),
     );
   }
 
@@ -104,8 +99,8 @@ class _QuizResultScreenState extends State<QuizResultScreen> {
                       'assets/images/badge_.png',
                       width: 80,
                     ),
-                    resultText(
-                        30, "5/10", 30, FontWeight.w600, Colors.grey.shade600),
+                    resultText(30, "${widget.score}/10", 30, FontWeight.w600,
+                        Colors.grey.shade600),
                     Container(
                       width: size.width * .7,
                       height: 16,
@@ -135,8 +130,13 @@ class _QuizResultScreenState extends State<QuizResultScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            resultSelectionBtn("Close", () {}),
-                            resultSelectionBtn("Share", () {})
+                            resultSelectionBtn("Close", () {
+                              Navigator.of(context).popUntil((route) => false);
+                            }),
+                            resultSelectionBtn("Share", () {
+                              Share.share(
+                                  'Hemant Prajapati scored ${widget.score} on Quizzy App');
+                            })
                           ],
                         ),
                       ),

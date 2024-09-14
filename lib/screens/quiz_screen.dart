@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:quiz_app/models/quiz_model.dart';
+import 'package:quiz_app/screens/quiz_result_screen.dart';
+
 
 class QuizScreen extends StatefulWidget {
   final List<Question> questionsList;
@@ -12,6 +14,7 @@ class QuizScreen extends StatefulWidget {
 class _QuizScreenState extends State<QuizScreen> {
   final PageController _pageController = PageController();
   int currentQuestionIndex = 0;
+  int score = 0;
   Map<String, String> selectedOptions = {};
   bool optionSelected = false;
   bool isCorrect = false;
@@ -21,6 +24,9 @@ class _QuizScreenState extends State<QuizScreen> {
       selectedOptions[question.questionId] = optionId;
       optionSelected = true;
       isCorrect = question.correctOptionId == optionId;
+      if (isCorrect) {
+        score++;
+      }
     });
   }
 
@@ -172,7 +178,12 @@ class _QuizScreenState extends State<QuizScreen> {
                         curve: Curves.easeInOut,
                       );
                     } else {
-                      // Handle the quiz submission here
+                      // Navigate to the ResultScreen
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (context) => QuizResultScreen(score: score),
+                        ),
+                      );
                     }
                   },
                   child: Container(
